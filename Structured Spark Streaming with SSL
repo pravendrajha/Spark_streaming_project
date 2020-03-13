@@ -1,0 +1,19 @@
+
+spark-shell --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.3.0
+
+import org.apache.kafka.clients.CommonClientConfigs
+import org.apache.kafka.common.config.SslConfigs
+
+val security = Map(
+  CommonClientConfigs.SECURITY_PROTOCOL_CONFIG -> "SSL",
+  SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG -> "/client.truststore.jks",
+  SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG -> "XXXXXX",
+  SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG -> "/client.keystore.jks",
+  SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG -> "XXXXXX",
+  SslConfigs.SSL_KEY_PASSWORD_CONFIG -> "XXXXXXX"
+).map(x => "kafka." + x._1 -> x._2)
+
+
+val df = spark   .readStream .format("kafka").options(security).option("kafka.bootstrap.servers", "xxx-xxx-xxx:xxxx").option("subscribe", "xxtopic").option("group.id", "localhost").load()
+
+df.writeStream .format("console").option("truncate","false").start()
